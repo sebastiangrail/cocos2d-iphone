@@ -112,26 +112,26 @@ float	__ccContentScaleFactor = 1;
 - (id) init
 {
 	if( (self=[super init]) ) {
-
+		
 		__ccContentScaleFactor = 1;
 		_isContentScaleSupported = NO;
-
+		
 		_touchDispatcher = [[CCTouchDispatcher alloc] init];
-
+		
 		// running thread is main thread on iOS
 		_runningThread = [NSThread currentThread];
 		
 		// Apparently it comes with a default view, and we don't want it
-//		[self setView:nil];
+		//		[self setView:nil];
 	}
-
+	
 	return self;
 }
 
 - (void) dealloc
 {
 	[_touchDispatcher release];
-
+	
 	[super dealloc];
 }
 
@@ -142,37 +142,37 @@ float	__ccContentScaleFactor = 1;
 {
 	/* calculate "global" dt */
 	[self calculateDeltaTime];
-
+	
 	CCGLView *openGLview = (CCGLView*)[self view];
-
+	
 	[EAGLContext setCurrentContext: [openGLview context]];
-
+	
 	/* tick before glClear: issue #533 */
 	if( ! _isPaused )
 		[_scheduler update: _dt];
-
+	
 	glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
-
+	
 	/* to avoid flickr, nextScene MUST be here: after tick and before draw.
 	 XXX: Which bug is this one. It seems that it can't be reproduced with v0.9 */
 	if( _nextScene )
 		[self setNextScene];
-
+	
 	kmGLPushMatrix();
-
+	
 	[_runningScene visit];
-
+	
 	[_notificationNode visit];
-
+	
 	if( _displayStats )
 		[self showStats];
-
+	
 	kmGLPopMatrix();
-
+	
 	_totalFrames++;
-
+	
 	[openGLview swapBuffers];
-
+	
 	if( _displayStats )
 		[self calculateMPF];
 }
@@ -189,36 +189,36 @@ float	__ccContentScaleFactor = 1;
 	CGSize sizePoint = _winSizeInPoints;
     
 	[self setViewport];
-
+	
 	switch (projection) {
 		case kCCDirectorProjection2D:
-
+			
 			kmGLMatrixMode(KM_GL_PROJECTION);
 			kmGLLoadIdentity();
-
+			
 			kmMat4 orthoMatrix;
 			kmMat4OrthographicProjection(&orthoMatrix, 0, size.width / CC_CONTENT_SCALE_FACTOR(), 0, size.height / CC_CONTENT_SCALE_FACTOR(), -1024, 1024 );
 			kmGLMultMatrix( &orthoMatrix );
-
+			
 			kmGLMatrixMode(KM_GL_MODELVIEW);
 			kmGLLoadIdentity();
 			break;
-
+			
 		case kCCDirectorProjection3D:
 		{
 			float zeye = [self getZEye];
-
+			
 			kmMat4 matrixPerspective, matrixLookup;
-
+			
 			kmGLMatrixMode(KM_GL_PROJECTION);
 			kmGLLoadIdentity();
-
+			
 			// issue #1334
 			kmMat4PerspectiveProjection( &matrixPerspective, 60, (GLfloat)size.width/size.height, 0.1f, zeye*2);
-//			kmMat4PerspectiveProjection( &matrixPerspective, 60, (GLfloat)size.width/size.height, 0.1f, 1500);
-
+			//			kmMat4PerspectiveProjection( &matrixPerspective, 60, (GLfloat)size.width/size.height, 0.1f, 1500);
+			
 			kmGLMultMatrix(&matrixPerspective);
-
+			
 			kmGLMatrixMode(KM_GL_MODELVIEW);
 			kmGLLoadIdentity();
 			kmVec3 eye, center, up;
@@ -229,19 +229,19 @@ float	__ccContentScaleFactor = 1;
 			kmGLMultMatrix(&matrixLookup);
 			break;
 		}
-
+			
 		case kCCDirectorProjectionCustom:
 			if( [_delegate respondsToSelector:@selector(updateProjection)] )
 				[_delegate updateProjection];
 			break;
-
+			
 		default:
 			CCLOG(@"cocos2d: Director: unrecognized projection");
 			break;
 	}
-
+	
 	_projection = projection;
-
+	
 	ccSetProjectionMatrixDirty();
 }
 
@@ -252,7 +252,7 @@ float	__ccContentScaleFactor = 1;
 	NSAssert(_runningScene == nil, @"This command can only be used to start the CCDirector. There is already a scene present.");
 	
 	[self pushScene:scene];
-
+	
 	NSThread *thread = [self runningThread];
 	[self performSelector:@selector(drawScene) onThread:thread withObject:nil waitUntilDone:YES];
 }
@@ -282,13 +282,13 @@ float	__ccContentScaleFactor = 1;
 -(void) setContentScaleFactor:(CGFloat)scaleFactor
 {
 	if( scaleFactor != __ccContentScaleFactor ) {
-
+		
 		__ccContentScaleFactor = scaleFactor;
 		_winSizeInPixels = CGSizeMake( _winSizeInPoints.width * scaleFactor, _winSizeInPoints.height * scaleFactor );
-
+		
 		if( __view )
 			[self updateContentScaleFactor];
-
+		
 		// update projection
 		[self setProjection:_projection];
 	}
@@ -297,7 +297,7 @@ float	__ccContentScaleFactor = 1;
 -(void) updateContentScaleFactor
 {
 	NSAssert( [__view respondsToSelector:@selector(setContentScaleFactor:)], @"cocos2d v2.0+ runs on iOS 4 or later");
-
+	
 	[__view setContentScaleFactor: __ccContentScaleFactor];
 	_isContentScaleSupported = YES;
 }
@@ -305,28 +305,28 @@ float	__ccContentScaleFactor = 1;
 -(BOOL) enableRetinaDisplay:(BOOL)enabled
 {
 	// Already enabled ?
-	if( enabled && __ccContentScaleFactor == 2 )
+	if( enabled && (__ccContentScaleFactor == 2 || __ccContentScaleFactor == 3) )
 		return YES;
-
+	
 	// Already disabled
 	if( ! enabled && __ccContentScaleFactor == 1 )
 		return YES;
-
+	
 	// setContentScaleFactor is not supported
 	if (! [__view respondsToSelector:@selector(setContentScaleFactor:)])
 		return NO;
-
+	
 	// SD device
 	if ([[UIScreen mainScreen] scale] == 1.0)
 		return NO;
-
-	float newScale = enabled ? 2 : 1;
+	
+	float newScale = enabled ? [[UIScreen mainScreen] scale] : 1;
 	[self setContentScaleFactor:newScale];
-
+	
 	// Load Hi-Res FPS label
 	[[CCFileUtils sharedFileUtils] buildSearchResolutionsOrder];
 	[self createStatsLabel];
-
+	
 	return YES;
 }
 
@@ -335,9 +335,9 @@ float	__ccContentScaleFactor = 1;
 {
 	_winSizeInPoints = [__view bounds].size;
 	_winSizeInPixels = CGSizeMake(_winSizeInPoints.width * __ccContentScaleFactor, _winSizeInPoints.height *__ccContentScaleFactor);
-
+	
 	[self setProjection:_projection];
-  
+	
 	if( [_delegate respondsToSelector:@selector(directorDidReshapeProjection:)] )
 		[_delegate directorDidReshapeProjection:self];
 }
@@ -373,7 +373,7 @@ GLToClipTransform(kmMat4 *transformOut)
 	kmVec3 glCoord;
 	kmVec3TransformCoord(&glCoord, &clipCoord, &transformInv);
 	
-//	NSLog(@"uiPoint: %@, glPoint: %@", NSStringFromCGPoint(uiPoint), NSStringFromCGPoint(ccp(glCoord.x, glCoord.y)));
+	//	NSLog(@"uiPoint: %@, glPoint: %@", NSStringFromCGPoint(uiPoint), NSStringFromCGPoint(ccp(glCoord.x, glCoord.y)));
 	return ccp(glCoord.x, glCoord.y);
 }
 
@@ -388,7 +388,7 @@ GLToClipTransform(kmMat4 *transformOut)
 {
 	kmMat4 transform;
 	GLToClipTransform(&transform);
-		
+	
 	kmVec3 clipCoord;
 	// Need to calculate the zero depth from the transform.
 	kmVec3 glCoord = {glPoint.x, glPoint.y, 0.0};
@@ -403,7 +403,7 @@ GLToClipTransform(kmMat4 *transformOut)
 	// don't release the event handlers
 	// They are needed in case the director is run again
 	[_touchDispatcher removeAllDelegates];
-
+	
 	[super end];
 }
 
@@ -414,14 +414,14 @@ GLToClipTransform(kmMat4 *transformOut)
 {
 	if( view != __view) {
 		[super setView:view];
-
+		
 		if( view ) {
 			// set size
 			_winSizeInPixels = CGSizeMake(_winSizeInPoints.width * __ccContentScaleFactor, _winSizeInPoints.height *__ccContentScaleFactor);
-
+			
 			if( __ccContentScaleFactor != 1 )
 				[self updateContentScaleFactor];
-
+			
 			[view setTouchDelegate: _touchDispatcher];
 			[_touchDispatcher setDispatchEvents: YES];
 		}
@@ -434,7 +434,7 @@ GLToClipTransform(kmMat4 *transformOut)
 	BOOL ret =YES;
 	if( [_delegate respondsToSelector:_cmd] )
 		ret = (BOOL) [_delegate shouldAutorotateToInterfaceOrientation:interfaceOrientation];
-
+	
 	return ret;
 }
 
@@ -455,20 +455,20 @@ GLToClipTransform(kmMat4 *transformOut)
 -(void) viewDidAppear:(BOOL)animated
 {
 	[super viewDidAppear:animated];
-//	[self startAnimation];
+	//	[self startAnimation];
 }
 
 -(void) viewWillDisappear:(BOOL)animated
 {
-//	[self stopAnimation];
-
+	//	[self stopAnimation];
+	
 	[super viewWillDisappear:animated];
 }
 
 -(void) viewDidDisappear:(BOOL)animated
 {
 	[self stopAnimation];
-
+	
 	[super viewDidDisappear:animated];
 }
 
@@ -476,7 +476,7 @@ GLToClipTransform(kmMat4 *transformOut)
 {
 	// Release any cached data, images, etc that aren't in use.
 	[super purgeCachedData];
-
+	
     // Releases the view if it doesn't have a superview.
     [super didReceiveMemoryWarning];
 }
@@ -484,7 +484,7 @@ GLToClipTransform(kmMat4 *transformOut)
 -(void) viewDidLoad
 {
 	CCLOG(@"cocos2d: viewDidLoad");
-
+	
 	[super viewDidLoad];
 }
 
@@ -492,7 +492,7 @@ GLToClipTransform(kmMat4 *transformOut)
 - (void)viewDidUnload
 {
 	CCLOG(@"cocos2d: viewDidUnload");
-
+	
     [super viewDidUnload];
     // Release any retained subviews of the main view.
     // e.g. self.myOutlet = nil;
@@ -503,7 +503,7 @@ GLToClipTransform(kmMat4 *transformOut)
 -(void)getFPSImageData:(unsigned char**)datapointer length:(NSUInteger*)len
 {
 	int device = [[CCConfiguration sharedConfiguration] runningDevice];
-
+	
 	if( device == kCCDeviceiPadRetinaDisplay) {
 		*datapointer = cc_fps_images_ipadhd_png;
 		*len = cc_fps_images_ipadhd_len();
@@ -511,7 +511,7 @@ GLToClipTransform(kmMat4 *transformOut)
 	} else if( device == kCCDeviceiPhoneRetinaDisplay || device == kCCDeviceiPhone5RetinaDisplay ) {
 		*datapointer = cc_fps_images_hd_png;
 		*len = cc_fps_images_hd_len();
-
+		
 	} else {
 		*datapointer = cc_fps_images_png;
 		*len = cc_fps_images_len();
@@ -544,31 +544,31 @@ GLToClipTransform(kmMat4 *transformOut)
 - (void) startAnimation
 {
 	[super startAnimation];
-
+	
     if(_isAnimating)
         return;
-
+	
 	gettimeofday( &_lastUpdate, NULL);
-
+	
 	// approximate frame rate
 	// assumes device refreshes at 60 fps
 	int frameInterval = (int) floor(_animationInterval * 60.0f);
-
+	
 	CCLOG(@"cocos2d: animation started with frame interval: %.2f", 60.0f/frameInterval);
-
+	
 	_displayLink = [CADisplayLink displayLinkWithTarget:self selector:@selector(mainLoop:)];
 	[_displayLink setFrameInterval:frameInterval];
-
+	
 #if CC_DIRECTOR_IOS_USE_BACKGROUND_THREAD
 	//
 	_runningThread = [[NSThread alloc] initWithTarget:self selector:@selector(threadMainLoop) object:nil];
 	[_runningThread start];
-
+	
 #else
 	// setup DisplayLink in main thread
 	[_displayLink addToRunLoop:[NSRunLoop currentRunLoop] forMode:NSDefaultRunLoopMode];
 #endif
-
+	
     _isAnimating = YES;
 }
 
@@ -576,15 +576,15 @@ GLToClipTransform(kmMat4 *transformOut)
 {
     if(!_isAnimating)
         return;
-
+	
 	CCLOG(@"cocos2d: animation stopped");
-
+	
 #if CC_DIRECTOR_IOS_USE_BACKGROUND_THREAD
 	[_runningThread cancel];
 	[_runningThread release];
 	_runningThread = nil;
 #endif
-
+	
 	[_displayLink invalidate];
 	_displayLink = nil;
     _isAnimating = NO;
@@ -603,11 +603,11 @@ GLToClipTransform(kmMat4 *transformOut)
     }
     // Store this timestamp for next time
     _lastDisplayTime = _displayLink.timestamp;
-
+	
 	// needed for SPF
 	if( _displayStats )
 		gettimeofday( &_lastUpdate, NULL);
-
+	
 #ifdef DEBUG
 	// If we are debugging our code, prevent big delta time
 	if( _dt > 0.2f )
@@ -624,12 +624,12 @@ GLToClipTransform(kmMat4 *transformOut)
 -(void) threadMainLoop
 {
 	NSAutoreleasePool *pool = [[NSAutoreleasePool alloc] init];
-
+	
 	[_displayLink addToRunLoop:[NSRunLoop currentRunLoop] forMode:NSDefaultRunLoopMode];
-
+	
 	// start the run loop
 	[[NSRunLoop currentRunLoop] run];
-
+	
 	[pool release];
 }
 
