@@ -39,6 +39,7 @@ NSString *kCCFileUtilsiPhone = @"iphone";
 NSString *kCCFileUtilsiPhoneHD = @"iphonehd";
 NSString *kCCFileUtilsiPhone5 = @"iphone5";
 NSString *kCCFileUtilsiPhone5HD = @"iphone5hd";
+NSString *kCCFileUtilsiPhone6HD = @"iphone6hd";
 NSString *kCCFileUtilsiPhoneRetinaHD = @"iphoneretinahd";
 NSString *kCCFileUtilsMac = @"mac";
 NSString *kCCFileUtilsMacHD = @"machd";
@@ -164,6 +165,7 @@ NSInteger ccLoadFileIntoMemory(const char *filename, unsigned char **out)
 						 @"-hd", kCCFileUtilsiPhoneHD,
 						 @"-iphone5", kCCFileUtilsiPhone5,
 						 @"-iphone5hd", kCCFileUtilsiPhone5HD,
+						 @"-iphone6hd", kCCFileUtilsiPhone6HD,
 						 @"-iphoneretinahd", kCCFileUtilsiPhoneRetinaHD,
 						 @"", kCCFileUtilsDefault,
 						 nil];
@@ -174,6 +176,7 @@ NSInteger ccLoadFileIntoMemory(const char *filename, unsigned char **out)
 							@"resources-iphone", kCCFileUtilsiPhone,
 							@"resources-iphonehd", kCCFileUtilsiPhoneHD,
 							@"resources-iphone5", kCCFileUtilsiPhone5,
+							@"resources-iphone6hd", kCCFileUtilsiPhone6HD,
 							@"resources-iphoneretinahd", kCCFileUtilsiPhoneRetinaHD,
 							@"resources-iphone5hd", kCCFileUtilsiPhone5HD,
 							@"", kCCFileUtilsDefault,
@@ -250,6 +253,14 @@ NSInteger ccLoadFileIntoMemory(const char *filename, unsigned char **out)
 			[_searchResolutionsOrder addObject:kCCFileUtilsiPhone5HD];
 			[_searchResolutionsOrder addObject:kCCFileUtilsiPhoneHD];
 		}
+	}
+	else if (device == kCCDeviceiPhone6RetinaDisplay)
+	{
+		[_searchResolutionsOrder addObject:kCCFileUtilsiPhone6HD];
+		[_searchResolutionsOrder addObject:kCCFileUtilsiPhone5HD];
+		[_searchResolutionsOrder addObject:kCCFileUtilsiPhoneHD];
+		[_searchResolutionsOrder addObject:kCCFileUtilsiPhone5];
+		[_searchResolutionsOrder addObject:kCCFileUtilsiPhone];
 	}
 	else if (device == kCCDeviceiPhone5RetinaDisplay)
 	{
@@ -421,6 +432,8 @@ NSInteger ccLoadFileIntoMemory(const char *filename, unsigned char **out)
 				return kCCResolutioniPhone5RetinaDisplay;
 			if( [key isEqualToString:kCCFileUtilsiPhone5] )
 				return kCCResolutioniPhone5;
+			if( [key isEqualToString:kCCFileUtilsiPhone6HD])
+				return 	kCCResolutioniPhone6RetinaDisplay;
 			if( [key isEqualToString:kCCFileUtilsiPhoneRetinaHD] )
 				return kCCResolutioniPhoneRetinaHDDisplay;
 			if( [key isEqualToString:kCCFileUtilsDefault] )

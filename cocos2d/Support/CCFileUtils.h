@@ -36,6 +36,7 @@ extern NSString const *kCCFileUtilsiPhone;
 extern NSString const *kCCFileUtilsiPhoneHD;
 extern NSString const *kCCFileUtilsiPhone5;
 extern NSString const *kCCFileUtilsiPhone5HD;
+extern NSString const *kCCFileUtilsiPhone6HD;
 extern NSString const *kCCFileUtilsiPhoneRetinaHD;
 extern NSString const *kCCFileUtilsMac;
 extern NSString const *kCCFileUtilsMacHD;

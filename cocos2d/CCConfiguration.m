@@ -140,15 +140,22 @@ static char * glExtensions;
 	{
 		// From http://stackoverflow.com/a/12535566
 		BOOL isiPhone5 = CGSizeEqualToSize([[UIScreen mainScreen] preferredMode].size,CGSizeMake(640, 1136));
+		BOOL isiPhone6 = CGSizeEqualToSize([[UIScreen mainScreen] preferredMode].size, CGSizeMake(750, 1334));
 		
 		if( CC_CONTENT_SCALE_FACTOR() == 2 ) {
-			ret = isiPhone5 ? kCCDeviceiPhone5RetinaDisplay : kCCDeviceiPhoneRetinaDisplay;
+			if (isiPhone5) {
+				ret = kCCDeviceiPhone5RetinaDisplay;
+			} else if (isiPhone6) {
+				ret = kCCDeviceiPhone6RetinaDisplay;
+			} else {
+				ret = kCCDeviceiPhoneRetinaDisplay;
+			}
 		}  else if ( CC_CONTENT_SCALE_FACTOR() == 3) {
 			ret = kCCDeviceiPhoneRetinaHDDisplay;
 		} else
 			ret = isiPhone5 ? kCCDeviceiPhone5 : kCCDeviceiPhone;
 	}
-	
+
 #elif defined(__CC_PLATFORM_MAC)
 	
 	// XXX: Add here support for Mac Retina Display
