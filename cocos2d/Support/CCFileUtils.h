@@ -198,7 +198,9 @@ enum {
  @since v2.0
  */
 -(void)setiPadRetinaDisplaySuffix:(NSString*)iPadRetinaDisplaySuffix;
--(void) setiPhoneRetinaHDDisplaySuffix:(NSString *)suffix;
+-(void)setiPhoneRetinaHDDisplaySuffix:(NSString *)suffix;
+-(void)setiPhone6HDDisplaySuffix:(NSString *)suffix;
+-(void)setiPhone5HDDisplaySuffix:(NSString *)suffix;
 
 #endif // __CC_PLATFORM_IOS
 

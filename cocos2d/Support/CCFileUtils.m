@@ -663,6 +663,14 @@ NSInteger ccLoadFileIntoMemory(const char *filename, unsigned char **out)
 	[_suffixesDict setObject:suffix forKey:kCCFileUtilsiPhoneRetinaHD];
 }
 
+-(void)setiPhone6HDDisplaySuffix:(NSString *)suffix {
+	[_suffixesDict setObject:suffix forKey:kCCFileUtilsiPhone6HD];
+}
+
+-(void)setiPhone5HDDisplaySuffix:(NSString *)suffix {
+	[_suffixesDict setObject:suffix forKey:kCCFileUtilsiPhone5HD];
+}
+
 #endif // __CC_PLATFORM_IOS
 
 
